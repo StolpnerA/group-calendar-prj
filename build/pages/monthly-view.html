@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Calendar - Monthly View</title>
+	<meta charset="utf-8"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="../libs/jquery-3.2.1/jquery-3.2.1.min.js"></script>
+	<script src="../libs/bootstrap-3.3.7/js/bootstrap.js"></script>
+	<script src="../libs/bootstrap-switch/bootstrap-switch.js"></script>
+	<link rel="stylesheet" href="../libs/bootstrap-3.3.7/css/bootstrap.css">
+	<link rel="stylesheet" href="../libs/bootstrap-switch/bootstrap-switch.css">
+	<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+	<div class="wrapper">
+
+		<div class="container">
+			<nav class="navbar">
+				<div class="container-fluid">
+					<div class="navbar-header">
+						<a class="navbar-brand" href="#">{User}'s Calendar</a>
+					</div>
+					<ul class="nav navbar-nav navbar-right my-navbar-right">
+						<li class="nav-list"><button class="btn btn-primary navbar-btn"><a class="no-style" href="notes-view.html">Show All Notes</a></button></li>
+						<li class="nav-list"><button class="btn btn-primary navbar-btn"><a class="no-style" href="../index.html">Log Out</a></button></li>
+					</ul>
+				</div>
+			</nav>
+			<div class="container-fluid">
+				<div class="datepicker-wrapper">
+					<div class="datepicker-title">Choose date</div>
+					<div class="input-group date my-datapicker" data-provide="datepicker">
+						<input type="text" class="form-control" placeholder="dd/mm/yyyy">
+						<div class="input-group-addon">
+							<span class="glyphicon glyphicon-calendar my-glyphicon-calendar"></span>
+						</div>
+					</div>
+				</div>
+				<div class="viewpicker-wrapper">
+					<div class="viewpicker-title"><a class="no-style-grey" href="monthly-view.html">Montly View</a></div>
+					<input type="checkbox" name="my-checkbox" checked>
+					<div class="viewpicker-title"><a class="no-style-grey" href="daily-view.html">Daily View</a></div>
+				</div>
+			</div>
+			<div class="table-responsive my-table">
+				<div class="table-rulers-wrapper">
+					<span class="glyphicon glyphicon-triangle-left my-glyphicon-triangle"></span>
+					<span class="calendar-title">July, 2017</span>
+					<span class="glyphicon glyphicon-triangle-right my-glyphicon-triangle"></span>
+				</div>
+				<table class="table table-bordered my-table-bordered">
+					<thead>
+						<tr>
+							<th class="my-calendar-th">Monday</th>
+							<th class="my-calendar-th">Tuesday</th>
+							<th class="my-calendar-th">Wednesday</th>
+							<th class="my-calendar-th">Thursday</th>
+							<th class="my-calendar-th">Friday</th>
+							<th class="my-calendar-th">Saturday</th>
+							<th class="my-calendar-th">Sunday</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="my-calendar-cell">29</td>
+							<td class="my-calendar-cell">30</td>
+							<td class="my-calendar-cell">1</td>
+							<td class="my-calendar-cell">2</td>
+							<td class="my-calendar-cell">3</td>
+							<td class="my-calendar-cell">4</td>
+							<td class="my-calendar-cell">5</td>
+						</tr>
+						<tr>
+							<td class="my-calendar-cell">6</td>
+							<td class="my-calendar-cell">7</td>
+							<td class="my-calendar-cell">
+								<div class="cell-header">
+									<span class="day">8</span>
+									<span class="glyphicon glyphicon glyphicon-plus"></span>
+								</div>
+								<div class="note-wrapper">
+									<ul class="tasks-list">
+										<li class="tasks-list-item">
+											<input type="checkbox">
+											<a class="note-text">Lorem ipsum...</a>
+										</li>
+										<li class="tasks-list-item">
+											<input type="checkbox">
+											<a class="note-text">Consectetur adi...</a>
+										</li>
+										<li class="tasks-list-item">
+											<input type="checkbox">
+											<a class="note-text note-selected">Incididunt ut labor</a>
+										</li>
+										<li class="tasks-list-item">
+											<input type="checkbox">
+											<a class="note-text">Quis nostrud...</a>
+										</li>
+									</ul>
+								</div>
+								<div class="note-create-form">
+									<div class="note-header">
+										<span class="day">July-8, 2017</span>
+										<span class="glyphicon glyphicon glyphicon-remove"></span>
+									</div>
+									<div class="note-title">Some sample task to do</div>
+									<div class="note-body">
+										Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+									</div>
+									<button class="btn btn-default my-btn-default">Save</button>
+								</div>
+							</td>
+							<td class="my-calendar-cell">9</td>
+							<td class="my-calendar-cell">10</td>
+							<td class="my-calendar-cell">11</td>
+							<td class="my-calendar-cell">12</td>
+						</tr>
+						<tr>
+							<td class="my-calendar-cell">13</td>
+							<td class="my-calendar-cell">14</td>
+							<td class="my-calendar-cell">15</td>
+							<td class="my-calendar-cell">16</td>
+							<td class="my-calendar-cell">17</td>
+							<td class="my-calendar-cell">18</td>
+							<td class="my-calendar-cell">19</td>
+						</tr>
+						<tr>
+							<td class="my-calendar-cell">20</td>
+							<td class="my-calendar-cell">21</td>
+							<td class="my-calendar-cell">22</td>
+							<td class="my-calendar-cell">23</td>
+							<td class="my-calendar-cell">
+								<div class="cell-header">
+									<span class="day">8</span>
+									<span class="glyphicon glyphicon glyphicon-plus"></span>
+								</div>
+								<div class="note-wrapper">
+									<ul class="tasks-list">
+										<li class="tasks-list-item">
+											<input type="checkbox">
+											<a class="note-text">Incididunt ut labor</a>
+										</li>
+										<li class="tasks-list-item">
+											<input type="checkbox">
+											<a class="note-text">Quis nostrud...</a>
+										</li>
+										<li class="tasks-list-item">
+											<input type="checkbox">
+											<a class="note-text">Lorem ipsum...</a>
+										</li>
+										<li class="tasks-list-item">
+											<input type="checkbox">
+											<a class="note-text">Consectetur adi...</a>
+										</li>
+									</ul>
+								</div>
+								<div class="note-create-form">
+									<div class="note-header">
+										<span class="day">July-8, 2017</span>
+										<span class="glyphicon glyphicon glyphicon-remove"></span>
+									</div>
+									<div class="note-title">Some sample task to do</div>
+									<div class="note-body">
+										Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+									</div>
+									<button class="btn btn-default my-btn-default">Save</button>
+								</div>
+							</td>
+							<td class="my-calendar-cell">25</td>
+							<td class="my-calendar-cell">26</td>
+						</tr>
+						<tr>
+							<td class="my-calendar-cell">27</td>
+							<td class="my-calendar-cell">28</td>
+							<td class="my-calendar-cell">29</td>
+							<td class="my-calendar-cell">30</td>
+							<td class="my-calendar-cell">31</td>
+							<td class="my-calendar-cell">1</td>
+							<td class="my-calendar-cell">2</td>
+						</tr>
+					</tbody>
+				</div>
+			</div>
+
+
+
+	</div>
+	<script>
+        $("[name='my-checkbox']").bootstrapSwitch();
+    </script>
+</body>
+</html>
