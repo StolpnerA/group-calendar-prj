@@ -1,6 +1,7 @@
 var gulp = require('gulp'),
-    babel = require('gulp-babel');
+    babel = require('gulp-babel'),
     watch = require('gulp-watch'),
+    concat = require('gulp-concat'),
     prefixer = require('gulp-autoprefixer'),
     uglify = require('gulp-uglify'),
     cssmin = require('gulp-minify-css'),
@@ -55,14 +56,14 @@ gulp.task('html:build', function () {
 
 gulp.task('js:build', function () {
     gulp.src(path.src.js) //Найдем наш main файл
-     //.pipe(concat('main.js'))
-        
-       
+        .pipe(concat('main.js'))
+
+
         //.pipe(gulp.dest(path.build.js)) //Выплюнем готовый файл в build
         .pipe(babel())
         .pipe(gulp.dest(path.build.js)) //Выплюнем готовый файл в build
         .pipe(reload({stream: true})); //И перезагрузим сервер
-        
+
 });
 
 gulp.task('style:build', function () {

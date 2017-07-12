@@ -2,7 +2,7 @@ var Router = function (options) {
   this.routes = options.routes || [];
   this.eventBus = options.eventBus;
   this.init();
-}
+};
 
 Router.prototype = {
   init: function () {
@@ -47,3 +47,4 @@ Router.prototype = {
       });
   },
 };
+new Router({routes: [index, monthlyView]});
