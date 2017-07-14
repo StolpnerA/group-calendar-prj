@@ -1,10 +1,24 @@
-var body = document.querySelector('body');
 var monthlyView = {
     name: 'monthlyView',
     match: (text) => text == 'monthlyView',
-    onBeforeEnter: () => console.log(`onBeforeEnter monthlyView`),
-    onEnter: () => {
-        body.innerHTML = `hi`;
+    onBeforeEnter: () => {
+        var ls = localStorage.getItem("user");
+        if (ls != userOnline && ls == null) {
+            location.hash = "";
+        }
     },
-    onLeave: () => console.log('onLeave index')
+    onEnter: () => {
+        let renderPage = new Pages();
+        renderPage.monthlyView();
+        let date = [];
+        let dateTimeNow = new Date();
+        let month = dateTimeNow.getMonth();
+        let year = dateTimeNow.getFullYear();
+        date.push(year);
+        date.push(month + 1);
+        renderPage.renderCalendar(date);
+    },
+    onLeave: () => {
+        localStorage.removeItem("user");
+    }
 };
