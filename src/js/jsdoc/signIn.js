@@ -1,40 +1,30 @@
 class UserDB {
-    constructor () {
+    constructor() {
         this.ls = new LocalStorageTasksRepository();
     }
+
     trySigninByLoginAndPass(login, password) {
         return new Promise((resolve, reject) => {
-            let users = this.ls.getAll();
-            for (var name in users) {
-                let user = users[name] || {};
-                if (name == login && user.password == password
-                    && login != '' && password != '') {
-                    userOnline = login;
-                    localStorage.setItem('user', login);
-                    return resolve();
-                }
+            let user = this.ls.getAll(login);
+            if (user != null && user.password == password &&
+                login != '' && password != '') {
+                userOnline = login;
+                return resolve();
             }
             reject();
         });
     }
+
     tryRegisterWithLoginAndEmail(login, password) {
         return new Promise((resolve, reject) => {
-            let users = this.ls.getAll();
-            if (!users) {
+            let user = this.ls.getAll(login);
+            if (!user) {
                 this.ls.add({}, login, password);
+                userOnline = login;
                 return resolve();
             }
             else {
-                for (var name in users) {
-                    if (name == login || login == '') {
-                        return reject();
-                    }
-                }
-                this.ls.add({}, login, password);
-                userOnline = login;
-                localStorage.setItem('user', login);
-                resolve();
-
+                return reject();
             }
         });
     }

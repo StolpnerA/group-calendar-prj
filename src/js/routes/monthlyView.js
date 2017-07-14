@@ -2,8 +2,7 @@ var monthlyView = {
     name: 'monthlyView',
     match: (text) => text == 'monthlyView',
     onBeforeEnter: () => {
-        var ls = localStorage.getItem("user");
-        if (ls != userOnline && ls == null) {
+        if (!userOnline) {
             location.hash = "";
         }
     },
@@ -17,8 +16,9 @@ var monthlyView = {
         date.push(year);
         date.push(month + 1);
         renderPage.renderCalendar(date);
+        renderPage.addHandlerEvent(date);
     },
     onLeave: () => {
-        localStorage.removeItem("user");
+        userOnline = '';
     }
 };

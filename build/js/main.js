@@ -151,22 +151,32 @@ var LocalStorageTasksRepository = function (userId) {};
 
 LocalStorageTasksRepository.prototype = {
     /**
-    * Returns list of all tasks for given user.	
-    * @returns {Object[]} List of tasks.
-    */
-    getAll: function () {
-        var users = JSON.parse(localStorage.getItem('users'));
-        return users;
+     * Returns list of all tasks for given user.
+     * @returns {Object[]} List of tasks.
+     */
+    getAll: function (login) {
+        var user = JSON.parse(localStorage.getItem(`${login}`));
+        return user;
     },
 
+    // getByUser: function (user) {
+    //    var allLS = this.getAll();
+    //    for (key in allLS) {
+    //        if (key == user){
+    //            var currentUser = allLS[key];
+    //            return currentUser;
+    //         }
+    //     }
+    // },
+
     /**
-    * Returns list of all tasks for given date.
-    * @param {Object} date - Date assigned to task.
-    * @param {number} date.day - Date day.
-    * @param {number} date.month - Date month.
-    * @param {number} date.year - Date year.
-    * @returns {Object[]} List of tasks.
-    */
+     * Returns list of all tasks for given date.
+     * @param {Object} date - Date assigned to task.
+     * @param {number} date.day - Date day.
+     * @param {number} date.month - Date month.
+     * @param {number} date.year - Date year.
+     * @returns {Object[]} List of tasks.
+     */
     getByDate: function (date) {
         // let currentDate = String(date.day) + date.month + date.year;
         // let tasks = JSON.parse(localStorage.getItem('tasks')) || {};
@@ -180,62 +190,73 @@ LocalStorageTasksRepository.prototype = {
     },
 
     /**
-    * Returns task by it's id.
-    * @param {string} taskId - The task id.
-    * @returns {Object} task.
-    */
+     * Returns task by it's id.
+     * @param {string} taskId - The task id.
+     * @returns {Object} task.
+     */
     getById: function (taskId) {},
 
     /**
-    * Adds task.
-    * @param {Object} task - task itself.
-    * @param {string} task.name - task name.
-    * @param {string} task.description - task description.
-    * @param {string} task.completed - Indicates whether task was completed
-    * @param {Object} task.date - Date assigned to task.
-    * @param {number} task.date.day - Date day.
-    * @param {number} task.date.month - Date month.
-    * @param {number} task.date.year - Date year.
-    * @returns {Object} task.
-    */
+     * Adds task.
+     * @param {Object} task - task itself.
+     * @param {string} task.name - task name.
+     * @param {string} task.description - task description.
+     * @param {string} task.completed - Indicates whether task was completed
+     * @param {Object} task.date - Date assigned to task.
+     * @param {number} task.date.day - Date day.
+     * @param {number} task.date.month - Date month.
+     * @param {number} task.date.year - Date year.
+     * @returns {Object} task.
+     */
     add: function (task, login, pass) {
         if (!task || !login || !pass) return;
-        var ls = JSON.parse(localStorage.getItem('users')) || {};
-        ls[`${login}`] = {
+        var obj = {
             password: pass,
             tasks: task
         };
-        localStorage.setItem('users', JSON.stringify(ls));
-        return task;
+        localStorage.setItem(`${login}`, JSON.stringify(obj));
     },
 
     /**
-    * Updates task.
-    * @param {Object} task - task itself.
-    * @param {string} task.Id - task id (datetime to milliseconds).
-    * @param {string} task.Name - task name.
-    * @param {string} task.Description - task description.
-    * @param {string} task.Completed - Indicates whether task was completed.
-    * @returns {Object} task.
-    */
+     * Updates task.
+     * @param {Object} task - task itself.
+     * @param {string} task.Id - task id (datetime to milliseconds).
+     * @param {string} task.Name - task name.
+     * @param {string} task.Description - task description.
+     * @param {string} task.Completed - Indicates whether task was completed.
+     * @returns {Object} task.
+     */
     update: function (task) {},
 
     /**
-    * Removes task.
-    * @param {string} taskId - task id.
-    */
+     * Removes task.
+     * @param {string} taskId - task id.
+     */
     delete: function (taskId) {},
 
     /**
-    * Saves object to local storage.
-    * @param {Object} tasks - tasks.
-    */
-    saveAll: function (tasks) {}
+     * Saves object to local storage.
+     * @param {Object} tasks - tasks.
+     */
+    saveAll: function (tasks) {},
+
+    SaveEventInDB(caption, dateDay) {
+        var obj = this.getAll(userOnline);
+        obj.tasks[`${dateDay}`] = obj.tasks[`${dateDay}`] || {
+            title: [],
+            text: [],
+            comments: []
+        };
+        var arr = obj.tasks[`${dateDay}`].title;
+        arr.push(caption);
+        localStorage.setItem(`${userOnline}`, JSON.stringify(obj));
+    }
 };
 
 class Pages {
     constructor() {
         this.body = document.querySelector('body');
+        this.ls = new LocalStorageTasksRepository();
     }
 
     index() {
@@ -258,10 +279,12 @@ class Pages {
 
     monthlyView() {
         this.body.innerHTML = `
+<div class="wrapper">
+    <div class="container">
         <nav class="navbar">
             <div class="container-fluid">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="#">{User}'s Calendar</a>
+                    <a class="navbar-brand" href="#" id="currentUser">{User}'s Calendar</a>
                 </div>
                 <ul class="nav navbar-nav navbar-right my-navbar-right">
                     <li class="nav-list">
@@ -291,27 +314,54 @@ class Pages {
                 <div class="viewpicker-title"><a class="no-style-grey" href="daily-view.html">Daily View</a></div>
             </div>
         </div>
-        <div class="table"></div>`;
+        <div class="table-responsive my-table">
+            <div class="table-rulers-wrapper">
+                <span class="glyphicon glyphicon-triangle-left my-glyphicon-triangle" id="backButton"></span>
+                <span class="calendar-title"></span>
+                <span class="glyphicon glyphicon-triangle-right my-glyphicon-triangle"  id="forwardButton"></span>
+            </div>
+            <table class="table table-bordered my-table-bordered">
+                <thead>
+                <tr>
+                    <th class="my-calendar-th">Monday</th>
+                    <th class="my-calendar-th">Tuesday</th>
+                    <th class="my-calendar-th">Wednesday</th>
+                    <th class="my-calendar-th">Thursday</th>
+                    <th class="my-calendar-th">Friday</th>
+                    <th class="my-calendar-th">Saturday</th>
+                    <th class="my-calendar-th">Sunday</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>`;
+        $("[name='my-checkbox']").bootstrapSwitch();
+        currentUser.innerHTML = userOnline;
     }
 
-    renderCalendar(dateMont) {
-        var year = dateMont[0];
-        var month = dateMont[1];
-
+    renderCalendar(dateMoth) {
+        var year = dateMoth[0];
+        var month = dateMoth[1];
+        var arrMonth = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        var showMonth = month - 1;
+        document.querySelector(".calendar-title").innerHTML = arrMonth[showMonth] + " " + year;
         function createCalendar(id, year, month) {
-            var elem = document.querySelector('div.table');
+            var elem = document.querySelector('tbody');
             var mon = month - 1; // месяцы в JS идут от 0 до 11, а не от 1 до 12
             var d = new Date(year, mon);
-            var table = `<table class="table table-bordered table-hover"><tr><th>пн</th><th>вт</th><th>ср</th><th>чт</th><th>пт</th><th>сб</th><th>вс</th></tr><tr>`;
+            var table = `<tr>`;
             // заполнить первый ряд от понедельника
             // и до дня, с которого начинается месяц
             // * * * | 1  2  3  4
             for (var i = 0; i < getDay(d); i++) {
-                table += "<td></td>";
+                table += "<td class='my-calendar-cell'></td>";
             }
             // ячейки календаря с датами
             while (d.getMonth() == mon) {
-                table += `<td class="d${d.getDate()}_${month}_${year}">${d.getDate()}</td>`;
+                table += `<td class="d${d.getDate()}_${month}_${year} my-calendar-cell">${d.getDate()}</td>`;
 
                 if (getDay(d) % 7 == 6) {
                     // вс, последний день - перевод строки
@@ -322,11 +372,11 @@ class Pages {
             // добить таблицу пустыми ячейками, если нужно
             if (getDay(d) != 0) {
                 for (var i = getDay(d); i < 7; i++) {
-                    table += "<td></td>";
+                    table += "<td class='my-calendar-cell'></td>";
                 }
             }
             // закрыть таблицу
-            table += "</tr></table>";
+            table += "</tr>";
             // только одно присваивание innerHTML
             elem.innerHTML = table;
         }
@@ -339,49 +389,91 @@ class Pages {
         }
 
         createCalendar("calendar", year, month);
-        // document
-        //     .querySelector("table")
-        //     .addEventListener("dblclick", () => this.addCaption(event));
-        // document
-        //     .querySelector("table")
-        //     .addEventListener("click", () => this.delCaption(event));
-        return dateMont;
+        document.querySelector("tbody").addEventListener("dblclick", () => this.addCaption(event));
+        document.querySelector("tbody").addEventListener("click", () => this.delCaption(event));
+        return dateMoth;
+    }
+
+    addEventForForwardButton(date) {
+        var year = date[0];
+        var month = date[1];
+        if (month === 12) {
+            year = year + 1;
+            month = 1;
+            date[0] = year;
+            date[1] = month;
+        } else {
+            month = month + 1;
+            date[1] = month;
+        }
+        document.querySelector('tbody').innerHTML = "";
+        this.renderCalendar(date);
+    }
+
+    addEventForBackButton(date) {
+        var year = date[0];
+        var month = date[1];
+        if (month === 1) {
+            year = year - 1;
+            month = 12;
+            date[0] = year;
+            date[1] = month;
+        } else {
+            month = month - 1;
+            date[1] = month;
+        }
+        document.querySelector('tbody').innerHTML = "";
+        this.renderCalendar(date);
+    }
+
+    addHandlerEvent(dateMonth) {
+        document.querySelector("#backButton").addEventListener("click", () => this.addEventForBackButton(dateMonth));
+        document.querySelector("#forwardButton").addEventListener("click", () => this.addEventForForwardButton(dateMonth));
+    }
+
+    addCaption(e) {
+        var target = e.target;
+        if (target.tagName !== "TD") return;
+        var data = target.className;
+        var task = prompt("Введите заголовок события?", "Пожрать");
+        if (!task) return;
+        target.innerHTML += `<div id="events">${task}<button class="cross">[x]</button></div>`;
+        this.ls.SaveEventInDB(task, data);
+    }
+
+    delCaption(e) {
+        var target = e.target;
+        if (target.tagName !== "BUTTON") return;
+        var text = target.parentNode.innerHTML.slice(0, -34);
+        var date = target.parentNode.parentNode.className;
+        target.parentNode.remove();
     }
 }
 class UserDB {
     constructor() {
         this.ls = new LocalStorageTasksRepository();
     }
+
     trySigninByLoginAndPass(login, password) {
         return new Promise((resolve, reject) => {
-            let users = this.ls.getAll();
-            for (var name in users) {
-                let user = users[name] || {};
-                if (name == login && user.password == password && login != '' && password != '') {
-                    userOnline = login;
-                    localStorage.setItem('user', login);
-                    return resolve();
-                }
+            let user = this.ls.getAll(login);
+            if (user != null && user.password == password && login != '' && password != '') {
+                userOnline = login;
+                return resolve();
             }
             reject();
         });
     }
+
     tryRegisterWithLoginAndEmail(login, password) {
         return new Promise((resolve, reject) => {
-            let users = this.ls.getAll();
-            if (!users) {
-                this.ls.add({}, login, password);
-                return resolve();
-            } else {
-                for (var name in users) {
-                    if (name == login || login == '') {
-                        return reject();
-                    }
-                }
+            let user = this.ls.getAll(login);
+            if (!user) {
                 this.ls.add({}, login, password);
                 userOnline = login;
-                localStorage.setItem('user', login);
-                resolve();
+                return resolve();
+            } else {
+                return reject();
             }
         });
     }
@@ -453,8 +545,7 @@ var monthlyView = {
     name: 'monthlyView',
     match: text => text == 'monthlyView',
     onBeforeEnter: () => {
-        var ls = localStorage.getItem("user");
-        if (ls != userOnline && ls == null) {
+        if (!userOnline) {
             location.hash = "";
         }
     },
@@ -468,9 +559,10 @@ var monthlyView = {
         date.push(year);
         date.push(month + 1);
         renderPage.renderCalendar(date);
+        renderPage.addHandlerEvent(date);
     },
     onLeave: () => {
-        localStorage.removeItem("user");
+        userOnline = '';
     }
 };
 
