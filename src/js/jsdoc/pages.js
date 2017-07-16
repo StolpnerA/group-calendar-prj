@@ -78,13 +78,46 @@ class Pages {
                 </tr>
                 </thead>
                 <tbody>
+                
                 </tbody>
             </table>
         </div>
     </div>
 </div>`;
         $("[name='my-checkbox']").bootstrapSwitch();
-        currentUser.innerHTML = userOnline;
+        currentUser.innerHTML = sessionStorage.getItem('currentUser');
+    };
+
+    renderMadal(e) {
+        var target = e.target;
+        if (target.tagName !== "TD") return;
+        var data = target.className.slice(0, -17);
+        let tbody = document.querySelector('tbody');
+        tbody.innerHTML += `
+        <div class="note-create-form">
+                    <div class="note-header">
+                         <span class="day">${data}</span>
+                         <span class="glyphicon glyphicon glyphicon-remove closeModal"></span>
+                    </div>
+                    <div class="note-title"><input type="text" placeholder="Title" id="taskTitleInput"></div>
+                    <div class="note-body">
+                                <textarea id="taskDescriptionInput">
+                                
+</textarea>
+                            </div>
+                            <button class="btn btn-default my-btn-default">Save</button>
+                        </div>`;
+        let modal = document.querySelector('.note-create-form');
+        let closeModal = modal.querySelector('.closeModal');
+        let save = modal.querySelector('button');
+        modal.style.display = 'flex';
+        taskDescriptionInput.value = '';
+        closeModal.addEventListener('click', () => modal.style.display = 'none');
+        save.addEventListener('click', () => {
+            let taskTitle = taskTitleInput.value;
+            let taskDescription = taskDescriptionInput.value;
+            if (taskTitle) this.addCaption(taskTitle, taskDescription, data);
+        })
     };
 
     renderCalendar(dateMoth) {
@@ -148,9 +181,10 @@ class Pages {
         }
 
         createCalendar("calendar", year, month);
+        this.ls.loadEventsFromDB();
         document
             .querySelector("tbody")
-            .addEventListener("dblclick", () => this.addCaption(event));
+            .addEventListener("dblclick", () => this.renderMadal(event));
         document
             .querySelector("tbody")
             .addEventListener("click", () => this.delCaption(event));
@@ -198,21 +232,18 @@ class Pages {
             .addEventListener("click", () => this.addEventForForwardButton(dateMonth));
     };
 
-    addCaption(e) {
-        var target = e.target;
-        if (target.tagName !== "TD") return;
-        var data = target.className;
-        var task = prompt("Введите заголовок события?", "Пожрать");
-        if (!task) return;
-        target.innerHTML += `<div id="events">${task}<button class="cross">[x]</button></div>`;
-        this.ls.SaveEventInDB(task, data);
+    addCaption(taskTitle, taskDescription, data) {
+        document.querySelector(`.${data}`).innerHTML += `<div>${taskTitle}<button class="cross">[x]</button></div>`;
+        this.ls.SaveEventInDB(taskTitle, taskDescription, data);
     };
 
     delCaption(e) {
+        // тут код для удаления заголовка
         var target = e.target;
         if (target.tagName !== "BUTTON") return;
         var text = target.parentNode.innerHTML.slice(0, -34);
-        var date = target.parentNode.parentNode.className;
+        var date = target.parentNode.parentNode.className.slice(0, -17);
         target.parentNode.remove();
+        this.ls.deleteEventInDB(date, text); // вызов метода из базы для удаления евента принимает на вход текст заголовка и тег в какой записали
     }
 }

@@ -1,4 +1,3 @@
-var userOnline = '';
 var index = {
     name: 'index',
     match: '',

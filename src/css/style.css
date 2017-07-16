@@ -193,7 +193,7 @@ h1 {
 
 .note-create-form {
 	position: absolute;
-    display: flex;
+    display: none;
     flex-direction: column;
     justify-content: space-between;
     top: 285px;

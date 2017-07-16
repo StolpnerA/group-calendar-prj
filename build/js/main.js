@@ -240,16 +240,48 @@ LocalStorageTasksRepository.prototype = {
      */
     saveAll: function (tasks) {},
 
-    SaveEventInDB(caption, dateDay) {
-        var obj = this.getAll(userOnline);
+    SaveEventInDB(taskTitle, taskDescription, dateDay) {
+        var obj = this.getAll(sessionStorage.getItem('currentUser'));
         obj.tasks[`${dateDay}`] = obj.tasks[`${dateDay}`] || {
             title: [],
-            text: [],
-            comments: []
+            description: [],
+            done: []
         };
-        var arr = obj.tasks[`${dateDay}`].title;
-        arr.push(caption);
-        localStorage.setItem(`${userOnline}`, JSON.stringify(obj));
+        var arrTitle = obj.tasks[`${dateDay}`].title;
+        arrTitle.push(taskTitle);
+        var arrDescription = obj.tasks[`${dateDay}`].description;
+        arrDescription.push(taskDescription);
+        var arrDone = obj.tasks[`${dateDay}`].done;
+        arrDone.push(false);
+        localStorage.setItem(`${sessionStorage.getItem('currentUser')}`, JSON.stringify(obj));
+    },
+
+    loadEventsFromDB() {
+        let obj = this.getAll(sessionStorage.getItem("currentUser"));
+        let cal = document.querySelector("table");
+        for (let dateLoad in obj.tasks) {
+            let loadData = obj.tasks[`${dateLoad}`].title;
+            let res = cal.querySelector(`.${dateLoad}`);
+            if (res != null) {
+                if (loadData.length - 1 == 0) {
+                    res.innerHTML += `<div>${loadData}<button class="cross">[x]</button></div>`;
+                } else {
+                    for (var i = 0; i < loadData.length; i++) {
+                        var dbArr = loadData;
+                        res.innerHTML += `<div>${dbArr[i]}<button class="cross">[x]</button></div>`;
+                    }
+                }
+            }
+        }
+    },
+    deleteEventInDB(dateDay, text) {
+        //удаление пока только заголовка
+        var obj = this.getAll(sessionStorage.getItem("currentUser"));
+        var index = obj.tasks[`${dateDay}`].title.indexOf(text);
+        obj.tasks[`${dateDay}`].title.splice(index, 1);
+        obj.tasks[`${dateDay}`].description.splice(index, 1);
+        obj.tasks[`${dateDay}`].done.splice(index, 1);
+        localStorage.setItem(`${sessionStorage.getItem("currentUser")}`, JSON.stringify(obj));
     }
 };
 
@@ -333,13 +365,46 @@ class Pages {
                 </tr>
                 </thead>
                 <tbody>
+                
                 </tbody>
             </table>
         </div>
     </div>
 </div>`;
         $("[name='my-checkbox']").bootstrapSwitch();
-        currentUser.innerHTML = userOnline;
+        currentUser.innerHTML = sessionStorage.getItem('currentUser');
+    }
+
+    renderMadal(e) {
+        var target = e.target;
+        if (target.tagName !== "TD") return;
+        var data = target.className.slice(0, -17);
+        let tbody = document.querySelector('tbody');
+        tbody.innerHTML += `
+        <div class="note-create-form">
+                    <div class="note-header">
+                         <span class="day">${data}</span>
+                         <span class="glyphicon glyphicon glyphicon-remove closeModal"></span>
+                    </div>
+                    <div class="note-title"><input type="text" placeholder="Title" id="taskTitleInput"></div>
+                    <div class="note-body">
+                                <textarea id="taskDescriptionInput">
+                                
+</textarea>
+                            </div>
+                            <button class="btn btn-default my-btn-default">Save</button>
+                        </div>`;
+        let modal = document.querySelector('.note-create-form');
+        let closeModal = modal.querySelector('.closeModal');
+        let save = modal.querySelector('button');
+        modal.style.display = 'flex';
+        taskDescriptionInput.value = '';
+        closeModal.addEventListener('click', () => modal.style.display = 'none');
+        save.addEventListener('click', () => {
+            let taskTitle = taskTitleInput.value;
+            let taskDescription = taskDescriptionInput.value;
+            if (taskTitle) this.addCaption(taskTitle, taskDescription, data);
+        });
     }
 
     renderCalendar(dateMoth) {
@@ -389,7 +454,8 @@ class Pages {
         }
 
         createCalendar("calendar", year, month);
-        document.querySelector("tbody").addEventListener("dblclick", () => this.addCaption(event));
+        this.ls.loadEventsFromDB();
+        document.querySelector("tbody").addEventListener("dblclick", () => this.renderMadal(event));
         document.querySelector("tbody").addEventListener("click", () => this.delCaption(event));
         return dateMoth;
     }
@@ -431,22 +497,19 @@ class Pages {
         document.querySelector("#forwardButton").addEventListener("click", () => this.addEventForForwardButton(dateMonth));
     }
 
-    addCaption(e) {
-        var target = e.target;
-        if (target.tagName !== "TD") return;
-        var data = target.className;
-        var task = prompt("Введите заголовок события?", "Пожрать");
-        if (!task) return;
-        target.innerHTML += `<div id="events">${task}<button class="cross">[x]</button></div>`;
-        this.ls.SaveEventInDB(task, data);
+    addCaption(taskTitle, taskDescription, data) {
+        document.querySelector(`.${data}`).innerHTML += `<div>${taskTitle}<button class="cross">[x]</button></div>`;
+        this.ls.SaveEventInDB(taskTitle, taskDescription, data);
     }
 
     delCaption(e) {
+        // тут код для удаления заголовка
         var target = e.target;
         if (target.tagName !== "BUTTON") return;
         var text = target.parentNode.innerHTML.slice(0, -34);
-        var date = target.parentNode.parentNode.className;
+        var date = target.parentNode.parentNode.className.slice(0, -17);
         target.parentNode.remove();
+        this.ls.deleteEventInDB(date, text); // вызов метода из базы для удаления евента принимает на вход текст заголовка и тег в какой записали
     }
 }
 class UserDB {
@@ -458,7 +521,7 @@ class UserDB {
         return new Promise((resolve, reject) => {
             let user = this.ls.getAll(login);
             if (user != null && user.password == password && login != '' && password != '') {
-                userOnline = login;
+                sessionStorage.setItem(`currentUser`, `${login}`);
                 return resolve();
             }
             reject();
@@ -470,7 +533,7 @@ class UserDB {
             let user = this.ls.getAll(login);
             if (!user) {
                 this.ls.add({}, login, password);
-                userOnline = login;
+                sessionStorage.setItem(`currentUser`, `${login}`);
                 return resolve();
             } else {
                 return reject();
@@ -522,7 +585,6 @@ var Task = function (options) {
     this.completed = options && options.completed;
 };
 
-var userOnline = '';
 var index = {
     name: 'index',
     match: '',
@@ -545,9 +607,7 @@ var monthlyView = {
     name: 'monthlyView',
     match: text => text == 'monthlyView',
     onBeforeEnter: () => {
-        if (!userOnline) {
-            location.hash = "";
-        }
+        if (!sessionStorage.getItem('currentUser')) location.hash = "";
     },
     onEnter: () => {
         let renderPage = new Pages();
@@ -561,9 +621,7 @@ var monthlyView = {
         renderPage.renderCalendar(date);
         renderPage.addHandlerEvent(date);
     },
-    onLeave: () => {
-        userOnline = '';
-    }
+    onLeave: () => {}
 };
 
 function EventBus() {

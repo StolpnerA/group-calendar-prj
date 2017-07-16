@@ -106,15 +106,52 @@ LocalStorageTasksRepository.prototype = {
 
     },
 
-    SaveEventInDB(caption, dateDay) {
-        var obj = this.getAll(userOnline);
+    SaveEventInDB(taskTitle, taskDescription, dateDay) {
+        var obj = this.getAll(sessionStorage.getItem('currentUser'));
         obj.tasks[`${dateDay}`] = obj.tasks[`${dateDay}`] || {
                 title: [],
-                text: [],
-                comments: []
+                description: [],
+                done: []
             };
-        var arr = obj.tasks[`${dateDay}`].title;
-        arr.push(caption);
-        localStorage.setItem(`${userOnline}`, JSON.stringify(obj));
+        var arrTitle = obj.tasks[`${dateDay}`].title;
+        arrTitle.push(taskTitle);
+        var arrDescription = obj.tasks[`${dateDay}`].description;
+        arrDescription.push(taskDescription);
+        var arrDone = obj.tasks[`${dateDay}`].done;
+        arrDone.push(false);
+        localStorage.setItem(`${sessionStorage.getItem('currentUser')}`, JSON.stringify(obj));
+    },
+
+    loadEventsFromDB () {
+        let obj = this.getAll(sessionStorage.getItem("currentUser"));
+        let cal = document.querySelector("table");
+        for (let dateLoad in obj.tasks) {
+            let loadData = obj.tasks[`${dateLoad}`].title;
+            let res = cal.querySelector(`.${dateLoad}`);
+            if (res != null) {
+                if (loadData.length - 1 == 0) {
+                    res.innerHTML += `<div>${loadData}<button class="cross">[x]</button></div>`;
+                } else {
+                    for (var i = 0; i < loadData.length; i++) {
+                        var dbArr = loadData;
+                        res.innerHTML += `<div>${dbArr[
+                            i
+                            ]}<button class="cross">[x]</button></div>`;
+                    }
+                }
+            }
+        }
+    },
+    deleteEventInDB(dateDay, text) {
+        //удаление пока только заголовка
+        var obj = this.getAll(sessionStorage.getItem("currentUser"));
+        var index = obj.tasks[`${dateDay}`].title.indexOf(text);
+        obj.tasks[`${dateDay}`].title.splice(index, 1);
+        obj.tasks[`${dateDay}`].description.splice(index, 1);
+        obj.tasks[`${dateDay}`].done.splice(index, 1);
+        localStorage.setItem(
+            `${sessionStorage.getItem("currentUser")}`,
+            JSON.stringify(obj)
+        );
     }
-};
+}

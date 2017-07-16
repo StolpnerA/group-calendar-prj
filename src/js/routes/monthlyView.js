@@ -2,9 +2,7 @@ var monthlyView = {
     name: 'monthlyView',
     match: (text) => text == 'monthlyView',
     onBeforeEnter: () => {
-        if (!userOnline) {
-            location.hash = "";
-        }
+        if (!sessionStorage.getItem('currentUser')) location.hash = "";
     },
     onEnter: () => {
         let renderPage = new Pages();
@@ -19,6 +17,6 @@ var monthlyView = {
         renderPage.addHandlerEvent(date);
     },
     onLeave: () => {
-        userOnline = '';
+
     }
 };

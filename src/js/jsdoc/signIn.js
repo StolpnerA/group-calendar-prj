@@ -8,7 +8,7 @@ class UserDB {
             let user = this.ls.getAll(login);
             if (user != null && user.password == password &&
                 login != '' && password != '') {
-                userOnline = login;
+                sessionStorage.setItem(`currentUser`, `${login}`);
                 return resolve();
             }
             reject();
@@ -20,7 +20,7 @@ class UserDB {
             let user = this.ls.getAll(login);
             if (!user) {
                 this.ls.add({}, login, password);
-                userOnline = login;
+                sessionStorage.setItem(`currentUser`, `${login}`);
                 return resolve();
             }
             else {
